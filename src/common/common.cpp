@@ -96,3 +96,22 @@ String &string_append(String &string, const String &item, const char *delimiter)
 
 	return string;
 }
+
+//==============================================================================
+StringVector split_string(const String& input)
+{
+	StringVector list;
+
+	String s = boost::to_lower_copy(input);
+	boost::split(list, s, boost::is_any_of(";"));
+	StringVector::iterator it = list.begin();
+	while (it != list.end())
+	{
+		boost::trim(*it);
+		if (it->empty())
+			it = list.erase(it);
+		else
+			it++;
+	}
+	return list;
+}

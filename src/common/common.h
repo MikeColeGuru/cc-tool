@@ -50,6 +50,7 @@ void 	vector_append(ByteVector &vector, const uint8_t data[], size_t size);
 String& string_append(String &string, const String &item, const char *delimiter);
 bool 	hex_to_binary(const String &hex, ByteVector &out, const char delimiter[] = "");
 uint_t	align_up(uint_t value, uint_t aligment);
+StringVector split_string(const String& input);
 
 namespace common_impl
 {

@@ -23,7 +23,9 @@ class CC_Flasher : public CC_Base
 {
 public:
 	CC_Flasher();
-
+	virtual ~CC_Flasher();
+	void init_options(po::options_description &);
+	
 private:
 	void task_test();
 	void task_erase();
@@ -38,7 +40,6 @@ private:
 	bool validate_lock_options();
 	bool validate_flash_size_options();
 
-	virtual void init_options(po::options_description &);
 	virtual bool read_options(const po::options_description &, const po::variables_map &);
 	virtual void process_tasks();
 

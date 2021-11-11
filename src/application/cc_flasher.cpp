@@ -175,8 +175,6 @@ static void print_result(bool result, const Timer& timer)
 //==============================================================================
 void CC_Flasher::init_options(po::options_description &desc)
 {
-	CC_Base::init_options(desc);
-
 	desc.add_options()
 		("read-info-page,i", po::value<String>(&option_info_page_)->implicit_value(""),
 				"read info pages");
@@ -346,25 +344,6 @@ bool CC_Flasher::validate_mac_options()
 		return false;
 	}
 	return true;
-}
-
-//==============================================================================
-StringVector split_string(const String& input)
-{
-	StringVector list;
-
-	String s = boost::to_lower_copy(input);
-	boost::split(list, s, boost::is_any_of(";"));
-	StringVector::iterator it = list.begin();
-	while (it != list.end())
-	{
-		boost::trim(*it);
-		if (it->empty())
-			it = list.erase(it);
-		else
-			it++;
-	}
-	return list;
 }
 
 //==============================================================================
@@ -681,3 +660,7 @@ CC_Flasher::CC_Flasher() :
 	programmer_.do_on_flash_read_progress(on_progress);
 	programmer_.do_on_flash_write_progress(on_progress);
 }
+
+//==============================================================================
+CC_Flasher::~CC_Flasher() 
+{}

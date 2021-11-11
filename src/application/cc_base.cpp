@@ -12,6 +12,7 @@
 #include "timer.h"
 #include "programmer/cc_programmer.h"
 #include "cc_base.h"
+#include "main.h"
 
 //==============================================================================
 static bool extract_usb_address(const String &str, uint_t &bus, uint_t &device)
@@ -48,20 +49,20 @@ static std::ostream& operator <<(std::ostream &os, const USB_DeviceID &o)
 	return os;
 }
 
-//==============================================================================
-static void init_log(int argc, char *argv[], String &log_file)
-{
-	if (log_file.empty())
-		log_file = String(MODULE_NAME) + ".log";
+// //==============================================================================
+// static void init_log(int argc, char *argv[], String &log_file)
+// {
+// 	if (log_file.empty())
+// 		log_file = String(MODULE_NAME) + ".log";
 
-	log_get().set_log_file(log_file);
-	log_info("main, %s %u.%u", MODULE_NAME, VERSION_MAJOR, VERSION_MINOR);
+// 	log_get().set_log_file(log_file);
+// 	log_info("main, %s %u.%u", MODULE_NAME, VERSION_MAJOR, VERSION_MINOR);
 
-	String command_line;
-	while (argc--)
-		command_line += String(*argv++) + " ";
-	log_info("main, command line: %s", command_line.c_str());
-}
+// 	String command_line;
+// 	while (argc--)
+// 		command_line += String(*argv++) + " ";
+// 	log_info("main, command line: %s", command_line.c_str());
+// }
 
 //==============================================================================
 static void print_usage(const po::options_description &desc)
@@ -75,27 +76,27 @@ static void print_usage(const po::options_description &desc)
 //==============================================================================
 void CC_Base::init_options(po::options_description &desc)
 {
-	desc.add_options()
-		("help,h", "produce help message");
+	// desc.add_options()
+	// 	("help,h", "produce help message");
 
-	desc.add_options()
-		("log", po::value<String>(&option_log_name_)->implicit_value(""),
-				"create log of all operations");
+	// desc.add_options()
+	// 	("log", po::value<String>(&option_log_name_)->implicit_value(""),
+	// 			"create log of all operations");
 
-	desc.add_options()
-		("device,d", po::value<String>(&option_device_address_),
-				"set programmer device usb address 'bus:device'");
+	// desc.add_options()
+	// 	("device,d", po::value<String>(&option_device_address_),
+	// 			"set programmer device usb address 'bus:device'");
 
-	desc.add_options()
-		("fast,f", "set fast debug interface speed (by default: slow)");
+	// desc.add_options()
+	// 	("fast,f", "set fast debug interface speed (by default: slow)");
 
-	desc.add_options()
-		("name,n", po::value<String>(&option_unit_name_),
-				"specify target name e.g. CC2530 etc.");
+	// desc.add_options()
+	// 	("name,n", po::value<String>(&option_unit_name_),
+	// 			"specify target name e.g. CC2530 etc.");
 
-	desc.add_options()
-		("allow-overlapping-records",
-				"allow overlapping records in hex files, the last one wins (by default: they are disallowed)");
+	// desc.add_options()
+	// 	("allow-overlapping-records",
+	// 			"allow overlapping records in hex files, the last one wins (by default: they are disallowed)");
 }
 
 //==============================================================================
@@ -126,7 +127,7 @@ bool CC_Base::read_options(const po::options_description &desc, const po::variab
 	if (vm.count("device"))
 	{
 		uint_t bus = 0, device = 0;
-		if (!extract_usb_address(option_device_address_, bus, device))
+		if (!extract_usb_address(option_device_address, bus, device))
 			throw po::error("Bad device address format");
 	}
 
@@ -156,10 +157,10 @@ bool CC_Base::init_unit()
 		return false;
 	}
 
-	boost::to_upper(option_unit_name_);
-	if (unit_name != option_unit_name_ && !option_unit_name_.empty())
+	boost::to_upper(option_unit_name);
+	if (unit_name != option_unit_name && !option_unit_name.empty())
 	{
-		std::cout << "Specified target " << option_unit_name_ << " not found" << "\n";
+		std::cout << "Specified target " << option_unit_name << " not found" << "\n";
 		return false;
 	}
 
@@ -176,10 +177,10 @@ bool CC_Base::init_programmer()
 {
 	CC_Programmer::OpenResult open_result = CC_Programmer::OR_OK;
 
-	if (!option_device_address_.empty())
+	if (!option_device_address.empty())
 	{
 		uint_t bus = 0, device = 0;
-		extract_usb_address(option_device_address_, bus, device);
+		extract_usb_address(option_device_address, bus, device);
 		open_result = programmer_.open(bus, device);
 		if (open_result == CC_Programmer::OR_NOT_SUPPORTED)
 			std::cout << std::setfill('0') << "  Device at "
@@ -207,20 +208,10 @@ bool CC_Base::init_programmer()
 }
 
 //==============================================================================
-bool CC_Base::execute(int argc, char *argv[])
+bool CC_Base::execute(po::options_description &desc, po::variables_map &vm)
 {
-	po::options_description desc;
-	init_options(desc);
-
 	try
 	{
-		po::variables_map vm;
-		po::store(po::parse_command_line(argc, argv, desc), vm);
-		po::notify(vm);
-
-		if (vm.count("log"))
-			init_log(argc, argv, option_log_name_);
-
 		if (!read_options(desc, vm))
 			return false;
 
@@ -261,4 +252,8 @@ void CC_Base::process_tasks()
 CC_Base::CC_Base() :
 		option_allow_overlapping_records_(false),
 		option_fast_interface_speed_(false)
-{ }
+{}
+
+//==============================================================================
+CC_Base::~CC_Base() 
+{}
